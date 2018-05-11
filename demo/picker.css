@@ -1,0 +1,135 @@
+.ui-picker * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ui-picker {
+  display: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99;
+}
+.picker-mask{
+  background-color: #000;
+  opacity: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  transition: opacity .4s linear;
+}
+
+.picker-wrap {
+  background-color: #fff;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  font-size: 28px;
+  line-height: 1.8;
+  z-index: 3;
+  transform: translateY(100%);
+  transition: transform .3s ease-out;
+}
+
+.ui-picker.show>.picker-mask{
+  opacity: .5;
+}
+.ui-picker.show>.picker-wrap{
+  transform: translateY(0);
+}
+
+
+.picker-header {}
+
+.picker-header:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.picker-btn {
+  display: inline-block;
+  height: 88px;
+  line-height: 88px;
+  padding: 0 30px;
+  float: left;
+  color: #777;
+}
+
+.picker-btn.ok {
+  float: right;
+  color: #0080ff;
+}
+
+.picker-body {
+  display: -webkit-flex;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 30px;
+  position: relative;
+}
+
+.picker-body:before,
+.picker-body:after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 180px;
+  background-color: #f0f0f0;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  z-index: 1;
+  opacity: .6;
+}
+
+.picker-body:after {
+  top: auto;
+  bottom: 0;
+  border-bottom: none;
+}
+
+.picker-item {
+  -webkit-flex: auto;
+  flex: auto;
+  width: 1%;
+  height: 440px;
+  position: relative;
+  z-index: 3;
+  overflow: hidden;
+}
+
+.picker-list {
+  list-style: none;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+.picker-list>li {
+  list-style: none;
+  height: 60px;
+  line-height: 60px;
+  color: #777;
+  transform-origin: 50% 50%;
+  transition: transform .15s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.picker-list>li.active {
+	color: #111;
+	transform: scale3d(1.2,1.2,1);
+	margin: 10px auto;
+}

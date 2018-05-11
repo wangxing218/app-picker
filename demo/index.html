@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=0.5, user-scalable=no">
+  <meta name="format-detection" content="telephone=no,email=no">
+  <meta http-equiv="Cache-Control" content="no-cache">
+  <title>select</title>
+  <link rel="stylesheet" href="picker.css?>v1">
+</head>
+
+<body>
+  <button onclick="showPicker()" style="font-size: 38px; display: block;width:100%">点我</button>
+  <div class="ui-picker in">
+    <div class="picker-mask" onclick="hidePicker()"></div>
+    <div class="picker-wrap">
+      <div class="picker-header">
+        <span class="picker-btn" onclick="hidePicker()">取消</span>
+        <span class="picker-btn ok" onclick="hidePicker()">确定</span>
+      </div>
+      <div class="picker-body">
+        <div class="picker-item">
+          <ul class="picker-list">
+            <li></li>
+            <li></li>
+            <li></li>
+            <li>安徽</li>
+            <li>北京</li>
+            <li>江苏</li>
+            <li>浙江</li>
+            <li>上海</li>
+            <li></li>
+            <li></li>
+            <li></li>
+          </ul>
+        </div>
+        <div class="picker-item">
+          <ul class="picker-list">
+            <li></li>
+            <li></li>
+            <li></li>
+            <li>合肥</li>
+            <li>安庆</li>
+            <li>芜湖</li>
+            <li>马鞍山</li>
+            <li>淮南</li>
+            <li>宿州</li>
+            <li>安庆</li>
+            <li>芜湖</li>
+            <li>马鞍山</li>
+            <li>淮南</li>
+            <li>宿州</li>
+            <li>马鞍山</li>
+            <li>淮南</li>
+            <li>宿州</li>
+            <li>安庆</li>
+            <li>芜湖</li>
+            <li>马鞍山</li>
+            <li>淮南</li>
+            <li>宿州</li>
+            <li>黄山</li>
+            <li>其他</li>
+            <li>安庆</li>
+            <li>芜湖</li>
+            <li>马鞍山</li>
+            <li>淮南</li>
+            <li>宿州</li>
+            <li>安庆</li>
+            <li>芜湖</li>
+            <li>马鞍山</li>
+            <li>淮南</li>
+            <li>宿州</li>
+            <li>马鞍山</li>
+            <li>淮南</li>
+            <li>宿州</li>
+            <li>安庆</li>
+            <li>芜湖</li>
+            <li>马鞍山</li>
+            <li>淮南</li>
+            <li>宿州</li>
+            <li>黄山</li>
+            <li>其他</li>
+            <li>安庆</li>
+            <li>芜湖</li>
+            <li>马鞍山</li>
+            <li>淮南</li>
+            <li>宿州</li>
+            <li>安庆</li>
+            <li>芜湖</li>
+            <li>马鞍山</li>
+            <li>淮南</li>
+            <li>宿州</li>
+            <li>马鞍山</li>
+            <li>淮南</li>
+            <li>宿州</li>
+            <li>安庆</li>
+            <li>芜湖</li>
+            <li>马鞍山</li>
+            <li>淮南</li>
+            <li>宿州</li>
+            <li>黄山</li>
+            <li>其他</li>
+            <li></li>
+            <li></li>
+            <li></li>
+          </ul>
+        </div>
+        <div class="picker-item">
+          <ul class="picker-list">
+            <li></li>
+            <li></li>
+            <li></li>
+            <li>蜀山区</li>
+            <li></li>
+            <li></li>
+            <li></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+<script>
+
+// 显示
+function showPicker(e) {
+  var el = document.querySelector('.ui-picker')
+  el.style.display = 'block'
+  setTimeout(function() {
+    el.classList.add('show')
+  }, 10)
+}
+
+// 隐藏
+function hidePicker(e) {
+  var el = document.querySelector('.ui-picker')
+  var wrap = el.querySelector('.picker-mask')
+  el.classList.remove('show')
+
+  function removeClass() {
+    el.style.display = 'none'
+    wrap.removeEventListener('transitionend', removeClass, false)
+  }
+  wrap.addEventListener('transitionend', removeClass, false)
+}
+
+// 变量
+var box = document.querySelectorAll('.picker-item')
+var liH = 60
+bindEvent(box[0])
+bindEvent(box[1])
+bindEvent(box[2])
+
+// 数据格式
+var type1 = ['选择一', '选择二']
+var type2 = [
+  { text: '请选择', value: '' },
+  { text: '选择一', value: '1' },
+  { text: '选择二', value: '2' },
+]
+var type3 = [
+  { text: '安徽省', value: 'anhui', id: '340000', pid: '000000' },
+  { text: '合肥市', value: 'hefei', id: '340100', pid: '340000' },
+]
+
+// 动画函数
+var Tween = {
+  easeIn: function(t, b, c, d) {
+    return (t == 0) ? b : c * Math.pow(2, 10 * (t / d - 1)) + b;
+  },
+  easeOut: function(t, b, c, d) {
+    return (t == d) ? b + c : c * (-Math.pow(2, -10 * t / d) + 1) + b;
+  },
+  easeOut2: function(t, b, c, d) {
+    return c * ((t = t / d - 1) * t * t + 1) + b;
+  },
+}
+
+// 给每个单元绑定滑动事件
+function bindEvent(box) {
+  var items = box.querySelectorAll('li')
+  var boxUl = box.querySelector('ul')
+  var startY = 0
+  var elY = translateY(box)
+  var curY = elY
+  var moveData = {
+    preTime: 0,
+    preDis: 0,
+    endTime: 0,
+    endDis: 0
+  }
+  var lastSpead = 0
+  var maxY = items.length <= 7 ? 0 : (items.length - 7) * liH
+  renderActive(items, elY)
+
+  // 滑动开始
+  box.addEventListener('touchstart', function(e) {
+    e.preventDefault()
+    lastSpead = 0
+    moveData = {
+      preTime: 0,
+      preDis: 0,
+      endTime: 0,
+      endDis: 0
+    }
+    elY = curY = translateY(boxUl)
+    startY = e.touches[0].pageY
+    cancelAnimationFrame(goBack)
+    box.addEventListener('touchmove', move, false)
+  }, false)
+
+  // 滑动中
+  function move(e) {
+    var delta = e.touches[0].pageY - startY
+    curY = elY + delta
+    // 到头了，阻尼
+    if (curY > 0) {
+      curY *= 0.3
+    }
+    // 到底了，阻尼
+    else if (curY + maxY <= 0) {
+      curY = curY - (curY + maxY) * (1 - 0.3)
+    }
+    // 正常情况记录时间和y轴位置
+    else if (Date.now() - moveData.preTime > 10) {
+      moveData.preTime = moveData.endTime
+      moveData.preDis = moveData.endDis
+      moveData.endTime = Date.now()
+      moveData.endDis = e.touches[0].pageY
+    }
+    renderActive(items, curY)
+    translateY(boxUl, curY)
+  }
+
+  // 滑动结束
+  box.addEventListener('touchend', function(e) {
+    box.removeEventListener('touchmove', move, false)
+    lastSpead = (moveData.endDis - moveData.preDis) / (moveData.endTime - moveData.preTime)
+    lastSpead = lastSpead || 0
+    console.log('速度 px/ms: ', lastSpead)
+    goBack()
+  }, false)
+
+  // touchend时列表的运动逻辑
+  function goBack() {
+    var toEndY = 0
+    var actIndex = Math.round(-curY / liH)
+    var keepTime = Date.now()
+    var delay = 0
+    var ease = 'easeOut'
+    // 过了头部回弹
+    if (curY > 0) toEndY = 0
+    // 过了底部回弹
+    else if (-curY > maxY) toEndY = -maxY
+    // 惯性运动
+    else if (Math.abs(lastSpead) >= 0.5) {
+      ease = 'easeOut2'
+      var a = 0.04;
+      delay = Math.abs(lastSpead) / a
+      var dist = lastSpead * delay - 0.5 * a * delay * delay
+      toEndY = curY + dist
+      if (toEndY > 0) {
+        toEndY = 0
+      } else if (-toEndY > maxY) {
+        toEndY = -maxY
+      } else {
+        toEndY = Math.round(toEndY / liH) * liH
+      }
+    }
+    // 正常位置回弹定位到最近的选项
+    else {
+      toEndY = -actIndex * liH
+    }
+    moveFunc(curY, toEndY, delay, function(y) {
+      translateY(boxUl, y)
+      renderActive(items, y)
+    }, ease)
+  }
+}
+
+// 弹性运动
+function moveFunc(start, end, delay, callback, ease) {
+  delay = 300
+  ease = ease || 'easeOut'
+  var distance = end - start
+  var startTime = Date.now()
+
+  function play() {
+    var durTime = Date.now() - startTime
+    var curStart = Tween[ease](durTime, start, distance, delay)
+    if (durTime >= delay) {
+      curStart = end
+    }
+    typeof callback == 'function' && callback(curStart)
+    durTime >= delay ? cancelAnimationFrame(play) : requestAnimationFrame(play)
+  }
+  requestAnimationFrame(play)
+}
+
+
+
+// 激活当前选中的class
+function renderActive(items, topY) {
+  var activeIndex = Math.round(-topY / liH)
+  items.forEach(function(item, index) {
+    if (activeIndex === index - 3) {
+      item.classList.add('active')
+    } else {
+      item.classList.remove('active')
+    }
+  })
+}
+
+// 获取和设置元素y轴值
+function translateY(el, y) {
+  if (arguments.length === 1) {
+    var tar = el.style.transform
+    if (!tar) return 0
+    var arr = tar.match(/translateY\((\-?\d+(\.\d+)?)px\)/)
+    if (arr && arr.length) {
+      return parseFloat(arr[1])
+    }
+    return 0;
+  }
+  el.style.transform = 'translateY(' + y + 'px)'
+}
+</script>
+
+</html>
