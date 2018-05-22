@@ -7,11 +7,27 @@
   <meta name="format-detection" content="telephone=no,email=no">
   <meta http-equiv="Cache-Control" content="no-cache">
   <title>select</title>
-  <link rel="stylesheet" href="picker.css?>v1">
+  <link rel="stylesheet" href="picker.css">
+  <style>
+  div.demo-btn {
+    font-size: 36px;
+    height: 80px;
+    line-height: 80px;
+    color: #fff;
+    background-color: #0080ff;
+    margin: 15px;
+    text-align: center;
+    font-weight: lighter;
+    border-radius: 8px;
+  }
+  </style>
 </head>
 
 <body>
-  <button onclick="showPicker()" style="font-size: 38px; display: block;width:100%">点我</button>
+  <div class="demo-btn" id="testUseA">基本用法一</div>
+  <div class="demo-btn" id="testUseB">基本用法二</div>
+  <div class="demo-btn" id="testUseC">二级选择</div>
+  <div class="demo-btn" id="testUseD">三级联动</div>
   <div class="ui-picker in">
     <div class="picker-mask" onclick="hidePicker()"></div>
     <div class="picker-wrap">
@@ -121,209 +137,94 @@
     </div>
   </div>
 </body>
+<script src="picker.js"></script>
 <script>
 
-// 显示
-function showPicker(e) {
-  var el = document.querySelector('.ui-picker')
-  el.style.display = 'block'
-  setTimeout(function() {
-    el.classList.add('show')
-  }, 10)
+// 基本用法一
+document.querySelector('#testUseA').onclick = function(e) {
+  if (this.pick) return this.pick.show()
+  this.pick = new Picker({
+    data: ['选择一', '选择二', '选择三'],
+    onOk: val => {
+      e.target.innerHTML = val
+      console.log(val)
+    },
+  }).show()
 }
 
-// 隐藏
-function hidePicker(e) {
-  var el = document.querySelector('.ui-picker')
-  var wrap = el.querySelector('.picker-mask')
-  el.classList.remove('show')
-
-  function removeClass() {
-    el.style.display = 'none'
-    wrap.removeEventListener('transitionend', removeClass, false)
-  }
-  wrap.addEventListener('transitionend', removeClass, false)
-}
-
-// 变量
-var box = document.querySelectorAll('.picker-item')
-var liH = 60
-bindEvent(box[0])
-bindEvent(box[1])
-bindEvent(box[2])
-
-// 数据格式
-var type1 = ['选择一', '选择二']
-var type2 = [
-  { text: '请选择', value: '' },
-  { text: '选择一', value: '1' },
-  { text: '选择二', value: '2' },
-]
-var type3 = [
-  { text: '安徽省', value: 'anhui', id: '340000', pid: '000000' },
-  { text: '合肥市', value: 'hefei', id: '340100', pid: '340000' },
-]
-
-// 动画函数
-var Tween = {
-  easeIn: function(t, b, c, d) {
-    return (t == 0) ? b : c * Math.pow(2, 10 * (t / d - 1)) + b;
-  },
-  easeOut: function(t, b, c, d) {
-    return (t == d) ? b + c : c * (-Math.pow(2, -10 * t / d) + 1) + b;
-  },
-  easeOut2: function(t, b, c, d) {
-    return c * ((t = t / d - 1) * t * t + 1) + b;
-  },
-}
-
-// 给每个单元绑定滑动事件
-function bindEvent(box) {
-  var items = box.querySelectorAll('li')
-  var boxUl = box.querySelector('ul')
-  var startY = 0
-  var elY = translateY(box)
-  var curY = elY
-  var moveData = {
-    preTime: 0,
-    preDis: 0,
-    endTime: 0,
-    endDis: 0
-  }
-  var lastSpead = 0
-  var maxY = items.length <= 7 ? 0 : (items.length - 7) * liH
-  renderActive(items, elY)
-
-  // 滑动开始
-  box.addEventListener('touchstart', function(e) {
-    e.preventDefault()
-    lastSpead = 0
-    moveData = {
-      preTime: 0,
-      preDis: 0,
-      endTime: 0,
-      endDis: 0
-    }
-    elY = curY = translateY(boxUl)
-    startY = e.touches[0].pageY
-    cancelAnimationFrame(goBack)
-    box.addEventListener('touchmove', move, false)
-  }, false)
-
-  // 滑动中
-  function move(e) {
-    var delta = e.touches[0].pageY - startY
-    curY = elY + delta
-    // 到头了，阻尼
-    if (curY > 0) {
-      curY *= 0.3
-    }
-    // 到底了，阻尼
-    else if (curY + maxY <= 0) {
-      curY = curY - (curY + maxY) * (1 - 0.3)
-    }
-    // 正常情况记录时间和y轴位置
-    else if (Date.now() - moveData.preTime > 10) {
-      moveData.preTime = moveData.endTime
-      moveData.preDis = moveData.endDis
-      moveData.endTime = Date.now()
-      moveData.endDis = e.touches[0].pageY
-    }
-    renderActive(items, curY)
-    translateY(boxUl, curY)
-  }
-
-  // 滑动结束
-  box.addEventListener('touchend', function(e) {
-    box.removeEventListener('touchmove', move, false)
-    lastSpead = (moveData.endDis - moveData.preDis) / (moveData.endTime - moveData.preTime)
-    lastSpead = lastSpead || 0
-    console.log('速度 px/ms: ', lastSpead)
-    goBack()
-  }, false)
-
-  // touchend时列表的运动逻辑
-  function goBack() {
-    var toEndY = 0
-    var actIndex = Math.round(-curY / liH)
-    var keepTime = Date.now()
-    var delay = 0
-    var ease = 'easeOut'
-    // 过了头部回弹
-    if (curY > 0) toEndY = 0
-    // 过了底部回弹
-    else if (-curY > maxY) toEndY = -maxY
-    // 惯性运动
-    else if (Math.abs(lastSpead) >= 0.5) {
-      ease = 'easeOut2'
-      var a = 0.04;
-      delay = Math.abs(lastSpead) / a
-      var dist = lastSpead * delay - 0.5 * a * delay * delay
-      toEndY = curY + dist
-      if (toEndY > 0) {
-        toEndY = 0
-      } else if (-toEndY > maxY) {
-        toEndY = -maxY
-      } else {
-        toEndY = Math.round(toEndY / liH) * liH
-      }
-    }
-    // 正常位置回弹定位到最近的选项
-    else {
-      toEndY = -actIndex * liH
-    }
-    moveFunc(curY, toEndY, delay, function(y) {
-      translateY(boxUl, y)
-      renderActive(items, y)
-    }, ease)
-  }
-}
-
-// 弹性运动
-function moveFunc(start, end, delay, callback, ease) {
-  delay = 300
-  ease = ease || 'easeOut'
-  var distance = end - start
-  var startTime = Date.now()
-
-  function play() {
-    var durTime = Date.now() - startTime
-    var curStart = Tween[ease](durTime, start, distance, delay)
-    if (durTime >= delay) {
-      curStart = end
-    }
-    typeof callback == 'function' && callback(curStart)
-    durTime >= delay ? cancelAnimationFrame(play) : requestAnimationFrame(play)
-  }
-  requestAnimationFrame(play)
+// 基本用法二
+document.querySelector('#testUseB').onclick = function(e) {
+  if (this.pick) return this.pick.show()
+  this.pick = new Picker({
+    data: [
+      { text: '请选择', value: '' },
+      { text: '选择一', value: '1' },
+      { text: '选择二', value: '2' },
+    ],
+    onOk: val => {
+      e.target.innerHTML = this.pick.getText()
+      console.log(val)
+    },
+  }).show()
 }
 
 
-
-// 激活当前选中的class
-function renderActive(items, topY) {
-  var activeIndex = Math.round(-topY / liH)
-  items.forEach(function(item, index) {
-    if (activeIndex === index - 3) {
-      item.classList.add('active')
-    } else {
-      item.classList.remove('active')
-    }
-  })
+// 二级选择
+document.querySelector('#testUseC').onclick = function(e) {
+  if (this.pick) return this.pick.show()
+  var data = [
+    [{ text: '周一', value: '1' },
+      { text: '周二', value: '2' },
+      { text: '周三', value: '3' },
+      { text: '周四', value: '4' },
+      { text: '周五', value: '5' }
+    ],
+    [{ text: '早上', value: '1' },
+      { text: '中午', value: '2' },
+      { text: '晚上', value: '3' }
+    ]
+  ]
+  this.pick  = new Picker({
+    data: data,
+    onOk: val => {
+      e.target.innerHTML = this.pick.getText().join(' ')
+      console.log(val)
+    },
+  }).show()
 }
 
-// 获取和设置元素y轴值
-function translateY(el, y) {
-  if (arguments.length === 1) {
-    var tar = el.style.transform
-    if (!tar) return 0
-    var arr = tar.match(/translateY\((\-?\d+(\.\d+)?)px\)/)
-    if (arr && arr.length) {
-      return parseFloat(arr[1])
-    }
-    return 0;
+
+// 多级联动
+document.querySelector('#testUseD').onclick = function(e) {
+  
+  if (this.pick){
+    return this.pick.show()
   }
-  el.style.transform = 'translateY(' + y + 'px)'
+  var initVal = e.target.innerHTML.split(' ')
+  var data = [
+    { text: '安徽', value: '安徽', id: '340000', pid: '000000' },
+    { text: '浙江', value: '浙江', id: '210000', pid: '000000' },
+    { text: '杭州', value: '杭州', id: '210100', pid: '210000' },
+    { text: '西湖', value: '西湖', id: '210101', pid: '210100' },
+    { text: '合肥', value: '合肥', id: '340100', pid: '340000' },
+    { text: '黄山', value: '黄山', id: '340200', pid: '340000' },
+    { text: '经开区', value: '经开区', id: '340101', pid: '340100' },
+    { text: '高新区', value: '高新区', id: '340102', pid: '340100' },
+    { text: '蜀山区', value: '蜀山区', id: '340103', pid: '340100' },
+    { text: '肥东县', value: '肥东县', id: '340104', pid: '340100' },
+    { text: '高新区', value: '高新区', id: '340104', pid: '340200' },
+  ]
+  this.pick= window.pick = new Picker({
+    data: data,
+    onOk: val => {
+      e.target.innerHTML = val.join(' ')
+      console.log(val)
+    },
+    rootId: '000000',
+  }).show()
+  if(initVal.length == 3){
+    this.pick.setValue(initVal)
+  }
 }
 </script>
 
