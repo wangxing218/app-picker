@@ -15,7 +15,7 @@
     line-height: 80px;
     color: #fff;
     background-color: #0080ff;
-    margin: 15px;
+    margin: 30px 15px;
     text-align: center;
     font-weight: lighter;
     border-radius: 8px;
@@ -26,116 +26,8 @@
 <body>
   <div class="demo-btn" id="testUseA">基本用法一</div>
   <div class="demo-btn" id="testUseB">基本用法二</div>
-  <div class="demo-btn" id="testUseC">二级选择</div>
-  <div class="demo-btn" id="testUseD">三级联动</div>
-  <div class="ui-picker in">
-    <div class="picker-mask" onclick="hidePicker()"></div>
-    <div class="picker-wrap">
-      <div class="picker-header">
-        <span class="picker-btn" onclick="hidePicker()">取消</span>
-        <span class="picker-btn ok" onclick="hidePicker()">确定</span>
-      </div>
-      <div class="picker-body">
-        <div class="picker-item">
-          <ul class="picker-list">
-            <li></li>
-            <li></li>
-            <li></li>
-            <li>安徽</li>
-            <li>北京</li>
-            <li>江苏</li>
-            <li>浙江</li>
-            <li>上海</li>
-            <li></li>
-            <li></li>
-            <li></li>
-          </ul>
-        </div>
-        <div class="picker-item">
-          <ul class="picker-list">
-            <li></li>
-            <li></li>
-            <li></li>
-            <li>合肥</li>
-            <li>安庆</li>
-            <li>芜湖</li>
-            <li>马鞍山</li>
-            <li>淮南</li>
-            <li>宿州</li>
-            <li>安庆</li>
-            <li>芜湖</li>
-            <li>马鞍山</li>
-            <li>淮南</li>
-            <li>宿州</li>
-            <li>马鞍山</li>
-            <li>淮南</li>
-            <li>宿州</li>
-            <li>安庆</li>
-            <li>芜湖</li>
-            <li>马鞍山</li>
-            <li>淮南</li>
-            <li>宿州</li>
-            <li>黄山</li>
-            <li>其他</li>
-            <li>安庆</li>
-            <li>芜湖</li>
-            <li>马鞍山</li>
-            <li>淮南</li>
-            <li>宿州</li>
-            <li>安庆</li>
-            <li>芜湖</li>
-            <li>马鞍山</li>
-            <li>淮南</li>
-            <li>宿州</li>
-            <li>马鞍山</li>
-            <li>淮南</li>
-            <li>宿州</li>
-            <li>安庆</li>
-            <li>芜湖</li>
-            <li>马鞍山</li>
-            <li>淮南</li>
-            <li>宿州</li>
-            <li>黄山</li>
-            <li>其他</li>
-            <li>安庆</li>
-            <li>芜湖</li>
-            <li>马鞍山</li>
-            <li>淮南</li>
-            <li>宿州</li>
-            <li>安庆</li>
-            <li>芜湖</li>
-            <li>马鞍山</li>
-            <li>淮南</li>
-            <li>宿州</li>
-            <li>马鞍山</li>
-            <li>淮南</li>
-            <li>宿州</li>
-            <li>安庆</li>
-            <li>芜湖</li>
-            <li>马鞍山</li>
-            <li>淮南</li>
-            <li>宿州</li>
-            <li>黄山</li>
-            <li>其他</li>
-            <li></li>
-            <li></li>
-            <li></li>
-          </ul>
-        </div>
-        <div class="picker-item">
-          <ul class="picker-list">
-            <li></li>
-            <li></li>
-            <li></li>
-            <li>蜀山区</li>
-            <li></li>
-            <li></li>
-            <li></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div class="demo-btn" id="testUseC">多级选择</div>
+  <div class="demo-btn" id="testUseD">多级联动</div>
 </body>
 <script src="picker.js"></script>
 <script>
@@ -144,7 +36,7 @@
 document.querySelector('#testUseA').onclick = function(e) {
   if (this.pick) return this.pick.show()
   this.pick = new Picker({
-    data: ['选择一', '选择二', '选择三'],
+    data: ['请选择', '美女', '帅哥', '大叔', '萝莉'],
     onOk: val => {
       e.target.innerHTML = val
       console.log(val)
@@ -204,6 +96,9 @@ document.querySelector('#testUseD').onclick = function(e) {
   var data = [
     { text: '安徽', value: '安徽', id: '340000', pid: '000000' },
     { text: '浙江', value: '浙江', id: '210000', pid: '000000' },
+    { text: '北京', value: '北京', id: '110000', pid: '000000' },
+    { text: '天津', value: '天津', id: '120000', pid: '000000' },
+    { text: '大度口', value: '大度口', id: '120101', pid: '120000' },
     { text: '杭州', value: '杭州', id: '210100', pid: '210000' },
     { text: '西湖', value: '西湖', id: '210101', pid: '210100' },
     { text: '合肥', value: '合肥', id: '340100', pid: '340000' },
@@ -213,6 +108,7 @@ document.querySelector('#testUseD').onclick = function(e) {
     { text: '蜀山区', value: '蜀山区', id: '340103', pid: '340100' },
     { text: '肥东县', value: '肥东县', id: '340104', pid: '340100' },
     { text: '高新区', value: '高新区', id: '340104', pid: '340200' },
+    { text: '五里街道', value: '五里街道', id: '34010401', pid: '340104' },
   ]
   this.pick= window.pick = new Picker({
     data: data,

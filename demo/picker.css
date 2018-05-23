@@ -57,6 +57,7 @@
 
 .picker-btn {
   display: inline-block;
+  font-size: 32px;
   height: 88px;
   line-height: 88px;
   padding: 0 30px;

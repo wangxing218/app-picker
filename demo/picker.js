@@ -1,5 +1,12 @@
-; + function(win, doc) {
-
+; + function(factory) {
+  if (typeof define === "function" && define.amd) {
+    define([], factory)
+  } else if (typeof exports === 'object') {
+    module.exports = factory()
+  } else {
+    window.Picker = factory()
+  }
+}(function() {
   // 默认配置
   var defaults = {
     onClose: null,
@@ -16,6 +23,7 @@
     // 选项的高度
     liH: 60,
   }
+  var doc = document
 
   // 动画函数
   var Tween = {
@@ -165,16 +173,26 @@
       })
       if (this.items[deep] && this.items[deep].el) {
         this._dom.body.removeChild(this.items[deep].el)
-        this.items[deep].el = null
+        this.items[deep].el = undefined
       }
       if (tempData.length) {
-
         this.items[deep] = {
           data: tempData,
           index: deep,
         }
         this._getLoopItem(tempData[initIndex].id, ++deep, value)
         return tempData
+      }else{
+        var len = this.items.length
+        var start = deep + 0
+        for(; start < len; start ++){
+          var sitem = this.items[deep]
+          if(sitem && sitem.el){
+            this._dom.body.removeChild(sitem.el)
+          }
+          this.items.splice(deep, 1)
+        }
+        return false
       }
     },
     // 渲染每个项
@@ -310,12 +328,8 @@
 
             if (moveRender) return
             if (oldActive === item.active) return
-            if (item.index >= _this.items.length - 1) return
-            _this._getLoopItem(item.data[item.active].id, item.index + 1)
-            _this._renderItems(item.index + 1)
+            _this._getLoopItem(item.data[item.active].id, item.index + 1) && _this._renderItems(item.index + 1)
             moveRender = true
-            console.log('active:' + item.active)
-            console.log('oldActive:' + oldActive)
           }
         }, ease)
       }
@@ -351,9 +365,9 @@
       key = key || 'value'
       var _this = this
       val = Array.isArray(val) ? val : [val]
-      if(this.type === 3){
-      	this._getLoopItem(this.options.rootId, 0, val)
-      	this._renderItems()
+      if (this.type === 3) {
+        this._getLoopItem(this.options.rootId, 0, val)
+        this._renderItems()
       }
       val.forEach((element, index) => {
         var item = this.items[index]
@@ -394,19 +408,19 @@
       this._dom.mask.addEventListener('transitionend', removeClass, false)
     },
     // 获取值
-    getValue() {
+    getValue: function() {
       return this._getValue('value')
     },
     // 获取文本
-    getText() {
+    getText: function() {
       return this._getValue('text')
     },
     // 获取所有的值
-    getAll() {
+    getAll: function() {
       return this._getValue()
     },
     // 获取选中的值
-    _getValue(key) {
+    _getValue: function(key) {
       var res = []
       this.items.forEach((item, index) => {
         var itemVal = item.data[item.active]
@@ -420,6 +434,11 @@
       }
       return res
     },
+    // 销毁实例
+    destroy: function() {
+      doc.body.removeChild(this.el)
+      delete this
+    },
   }
-  win.Picker = Picker
-}(window, document)
+  return Picker
+});
