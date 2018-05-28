@@ -28,10 +28,10 @@
   <div class="demo-btn" id="testUseB">基本用法二</div>
   <div class="demo-btn" id="testUseC">多级选择</div>
   <div class="demo-btn" id="testUseD">多级联动</div>
+  <div class="demo-btn" id="testUseE">时间选择</div>
 </body>
 <script src="picker.js"></script>
 <script>
-
 // 基本用法一
 document.querySelector('#testUseA').onclick = function(e) {
   if (this.pick) return this.pick.show()
@@ -54,7 +54,7 @@ document.querySelector('#testUseB').onclick = function(e) {
       { text: '选择二', value: '2' },
     ],
     onOk: val => {
-      e.target.innerHTML = this.pick.getText()
+      e.target.innerHTML = this.pick.getValue('text')
       console.log(val)
     },
   }).show()
@@ -76,10 +76,10 @@ document.querySelector('#testUseC').onclick = function(e) {
       { text: '晚上', value: '3' }
     ]
   ]
-  this.pick  = new Picker({
+  this.pick = new Picker({
     data: data,
     onOk: val => {
-      e.target.innerHTML = this.pick.getText().join(' ')
+      e.target.innerHTML = this.pick.getValue('text').join(' ')
       console.log(val)
     },
   }).show()
@@ -88,39 +88,53 @@ document.querySelector('#testUseC').onclick = function(e) {
 
 // 多级联动
 document.querySelector('#testUseD').onclick = function(e) {
-  
-  if (this.pick){
+
+  if (this.pick) {
     return this.pick.show()
   }
   var initVal = e.target.innerHTML.split(' ')
   var data = [
-    { text: '安徽', value: '安徽', id: '340000', pid: '000000' },
-    { text: '浙江', value: '浙江', id: '210000', pid: '000000' },
-    { text: '北京', value: '北京', id: '110000', pid: '000000' },
-    { text: '天津', value: '天津', id: '120000', pid: '000000' },
-    { text: '大度口', value: '大度口', id: '120101', pid: '120000' },
-    { text: '杭州', value: '杭州', id: '210100', pid: '210000' },
-    { text: '西湖', value: '西湖', id: '210101', pid: '210100' },
-    { text: '合肥', value: '合肥', id: '340100', pid: '340000' },
-    { text: '黄山', value: '黄山', id: '340200', pid: '340000' },
-    { text: '经开区', value: '经开区', id: '340101', pid: '340100' },
-    { text: '高新区', value: '高新区', id: '340102', pid: '340100' },
-    { text: '蜀山区', value: '蜀山区', id: '340103', pid: '340100' },
-    { text: '肥东县', value: '肥东县', id: '340104', pid: '340100' },
-    { text: '高新区', value: '高新区', id: '340104', pid: '340200' },
-    { text: '五里街道', value: '五里街道', id: '34010401', pid: '340104' },
+    { text: '安徽', id: '340000', pid: '000000' },
+    { text: '浙江', id: '210000', pid: '000000' },
+    { text: '北京', id: '110000', pid: '000000' },
+    { text: '天津', id: '120000', pid: '000000' },
+    { text: '大度口', id: '120101', pid: '120000' },
+    { text: '杭州', id: '210100', pid: '210000' },
+    { text: '西湖', id: '210101', pid: '210100' },
+    { text: '合肥', id: '340100', pid: '340000' },
+    { text: '黄山', id: '340200', pid: '340000' },
+    { text: '经开区', id: '340101', pid: '340100' },
+    { text: '高新区', id: '340102', pid: '340100' },
+    { text: '蜀山区', id: '340103', pid: '340100' },
+    { text: '肥东县', id: '340104', pid: '340100' },
+    { text: '高新区', id: '340105', pid: '340200' },
+    { text: '五里街道', id: '34010401', pid: '340104' },
   ]
-  this.pick= window.pick = new Picker({
+  this.pick = new Picker({
     data: data,
     onOk: val => {
       e.target.innerHTML = val.join(' ')
-      console.log(val)
+      console.log(this.pick.getValue('id'))
     },
     rootId: '000000',
   }).show()
-  if(initVal.length == 3){
+  if (initVal.length == 3) {
     this.pick.setValue(initVal)
   }
+}
+
+
+// 时间选择
+document.querySelector('#testUseE').onclick = function(e) {
+  if (this.pick) return this.pick.show()
+  this.pick = window.pick = new Picker({
+    onOk: val => {
+      e.target.innerHTML = val
+      console.log(val)
+    },
+    dateTime: 'yyyy-MM-dd',
+    value:'2018-04-20'
+  }).show()
 }
 </script>
 

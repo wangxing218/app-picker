@@ -20,8 +20,12 @@
     value: '',
     // 级联选择时的根id
     rootId: null,
-    // 选项的高度
-    liH: 60,
+    // 时间选择
+    dateTime: '',
+    // 最小日期
+    minDate: '',
+    // 最大日期
+    maxDate: '',
   }
   var doc = document
 
@@ -58,18 +62,20 @@
   }
 
 
-
-
   /* 对象 */
   function Picker(options) {
     options = options || {}
     this.options = Object.assign({}, defaults, options)
-    this.liH = this.options.liH
     this._initHtml()
     this._initDom()
     this.items = []
     this.options.data.length && this.setData(this.options.data)
-    this.options.value && this.setValue(this.options.value)
+    if (this.options.dateTime) {
+      this.type = 4
+      this.setValue(this.options.value || new Date)
+    } else {
+      this.options.value && this.setValue(this.options.value)
+    }
     this._bindEvent()
     return this
   }
@@ -102,7 +108,7 @@
       this._dom.body = this.el.querySelector('.picker-body')
     },
     // 绑定事件
-    _bindEvent() {
+    _bindEvent: function() {
 
       this._dom.mask.addEventListener('click', () => {
         this.close()
@@ -135,6 +141,10 @@
       if (this.options.rootId !== null) {
         this.type = 3
       }
+      // 日期时间
+      if (this.options.dateTime) {
+        this.type = 4
+      }
       switch (this.type) {
         case 1:
           this.items.push({
@@ -153,11 +163,14 @@
         case 3:
           this._getLoopItem()
           break
+        case 4:
+          // this._getTimeItem()
+          break
       }
       this._renderItems()
     },
     // 多级联动获取数据
-    _getLoopItem(pid, deep, value) {
+    _getLoopItem: function(pid, deep, value) {
       pid = pid === undefined ? this.options.rootId : pid
       deep = deep || 0
       var tempData = []
@@ -182,18 +195,137 @@
         }
         this._getLoopItem(tempData[initIndex].id, ++deep, value)
         return tempData
-      }else{
+      } else {
         var len = this.items.length
         var start = deep + 0
-        for(; start < len; start ++){
+        for (; start < len; start++) {
           var sitem = this.items[deep]
-          if(sitem && sitem.el){
+          if (sitem && sitem.el) {
             this._dom.body.removeChild(sitem.el)
           }
           this.items.splice(deep, 1)
         }
         return false
       }
+    },
+    // 时间选择数据
+    _getTimeItem: function(dVal, newItem) {
+      var fmt = this.options.dateTime
+      var timeArr = fmt.match(/(yyyy|MM|dd|hh|mm|ss)/g)
+      var now = dVal || new Date
+      // 设置时间范围
+      var minDate = this._minDate = new Date(this.options.minDate || '1970-01-01 00:00:00')
+      var maxDate = this._maxDate = new Date(this.options.maxDate || (now.getFullYear() + 30) + '-12-31 23:59:59')
+      // 年-yyyy
+      if (timeArr.includes('yyyy') && !newItem) {
+        var item = []
+        for (var start = minDate.getFullYear(), end = maxDate.getFullYear(); start <= end; start++) {
+          item.push({
+            text: start + '年',
+            value: start
+          })
+        }
+        if (!newItem) {
+          this.items.push({
+            data: item,
+            index: this.items.length,
+            time: 'yyyy',
+          })
+        }
+      }
+      if (newItem && newItem.time === 'yyyy') {
+        var nextItem = this.items[newItem.index + 1]
+        if (nextItem && nextItem.time === 'MM')
+          this._getTimeItem(dVal, nextItem)
+      }
+
+      // 月-yyyy
+      if (timeArr.includes('MM')) {
+        var item = []
+        var start = 1,
+          end = 12,
+          active = 0
+        if (now.getFullYear() === minDate.getFullYear()) {
+          start = minDate.getMonth() + 1
+        }
+        if (now.getFullYear() === maxDate.getFullYear()) {
+          end = maxDate.getMonth() + 1
+        }
+        for (; start <= end; start++) {
+          item.push({
+            text: start + '月',
+            value: start
+          })
+        }
+        if (newItem && newItem.time === 'MM' && newItem.data.length != item.length) {
+          this._dom.body.removeChild(newItem.el)
+          active = newItem.active < start - 1 ? start - 1 : newItem.active
+          active = newItem.active > end - 1 ? end - 1 : newItem.active
+          this.items[newItem.index] = {
+            data: item,
+            index: newItem.index,
+            time: 'MM',
+            active: active
+          }
+        } else if (!newItem) {
+          this.items.push({
+            data: item,
+            index: this.items.length,
+            time: 'MM',
+          })
+        }
+        if (newItem && newItem.time === 'MM') {
+          var nextItem = this.items[newItem.index + 1]
+          if (nextItem && nextItem.time === 'dd')
+            return this._getTimeItem(dVal, nextItem)
+        }
+      }
+
+      // 日-dd
+      if (timeArr.includes('dd')) {
+        var item = []
+        var start = 1,
+          end = 31,
+          active = 0
+        if (now.getFullYear() === minDate.getFullYear() && now.getMonth() === minDate.getMonth()) {
+          start = minDate.getDate()
+        }
+        if (now.getFullYear() === maxDate.getFullYear() && now.getMonth() === maxDate.getMonth()) {
+          end = maxDate.getDate()
+        } else {
+          end = this._getMonthDays(now.getFullYear(), now.getMonth() + 1)
+        }
+
+        for (; start <= end; start++) {
+          item.push({
+            text: start + '日',
+            value: start
+          })
+        }
+        if (newItem && newItem.time === 'dd' && newItem.data.length != item.length) {
+          this._dom.body.removeChild(newItem.el)
+          active = newItem.active < start - 1 ? start - 1 : newItem.active
+          active = newItem.active > end - 1 ? end - 1 : newItem.active
+          this.items[newItem.index] = {
+            data: item,
+            index: newItem.index,
+            time: 'dd',
+            active: active
+          }
+        } else if (!newItem) {
+          this.items.push({
+            data: item,
+            index: this.items.length,
+            time: 'dd',
+          })
+        }
+      }
+    },
+    // 根据时间判断当前月有多少天
+    _getMonthDays: function(y, m) {
+      if ([4, 6, 9, 11].includes(m)) return 30
+      if (m === 2) return (y % 4 === 0 && y % 100 !== 0) ? 29 : 28
+      return 31
     },
     // 渲染每个项
     _renderItems: function(startIndex) {
@@ -203,23 +335,31 @@
       }
       this.items.forEach((item, index) => {
         if (index < startIndex) return
+        if (item.el) {
+          this._dom.body.removeChild(item.el)
+          item.el = null
+        }
         item.el = doc.createElement('div')
         item.el.className = 'picker-item'
         var html = []
         html.push('<ul class="picker-list"><li></li><li></li><li></li>')
         item.data.forEach((element, index) => {
           var text = typeof element == 'object' ? element.text : element
-          html.push('<li>' + text + '</li>')
+          html.push('<li' + (item.active == index ? ' class="active"' : '') + '>' + text + '</li>')
         })
         html.push('<li></li><li></li><li></li></ul>')
         item.el.innerHTML = html.join('')
         this._dom.body.appendChild(item.el)
         item.ul = item.el.querySelector('ul')
+        if (!this.liH) {
+          this.liH = parseInt(document.defaultView.getComputedStyle(item.ul.childNodes[0])['height'])
+        }
+        this._translateY(item, -item.active * this.liH)
         this._bindItemEvent(item)
       })
     },
     // 为每个项绑定事件
-    _bindItemEvent(item) {
+    _bindItemEvent: function(item) {
       var _this = this
       var box = item.el
       var items = box.querySelectorAll('li')
@@ -324,14 +464,27 @@
         moveFunc(curY, toEndY, delay, y => {
           _this._translateY(item, y)
           _this._renderActive(items, y, item)
-          if (y == toEndY && _this.type === 3) {
-
-            if (moveRender) return
+          if (y == toEndY) {
             if (oldActive === item.active) return
-            _this._getLoopItem(item.data[item.active].id, item.index + 1) && _this._renderItems(item.index + 1)
+            if (this._moveRender) return
+            _this._updateItems(item)
             moveRender = true
           }
         }, ease)
+      }
+    },
+    // 当选项改变时进行联动更新
+    _updateItems: function(item) {
+      if (this.type == 3) return this._getLoopItem(item.data[item.active].id, item.index + 1) && this._renderItems(item.index + 1)
+      if (this.type === 4) {
+        var dVal = new Date(this.getValue())
+        console.log(this.getValue())
+        this._getTimeItem(dVal, item)
+        this._renderItems(item.index + 1)
+        // var dVal = new Date(this.getValue())
+        // this.items = []
+        // this._getTimeItem(dVal)
+        // this.setValue(dVal)
       }
     },
     // 激活当前选中的class
@@ -361,14 +514,59 @@
       el.style.transform = 'translateY(' + y + 'px)'
     },
     // 设置值
-    setValue(val, key) {
+    setValue: function(val, key) {
       key = key || 'value'
       var _this = this
+      if (this.type == 4) {
+        var dVal = typeof val === 'object' ? val : new Date(val)
+        this.items = []
+        this._getTimeItem(dVal)
+        this._renderItems()
+        this.items.forEach((item, index) => {
+          var active = 0
+          var listData = item.data
+          var actVal = null
+          for (var i = 0, l = listData.length; i < l; i++) {
+            var target = listData[i]['value']
+            switch (item.time) {
+              case 'yyyy':
+                actVal = dVal.getFullYear()
+                break;
+              case 'MM':
+                actVal = dVal.getMonth() + 1
+                break;
+              case 'dd':
+                actVal = dVal.getDate()
+                break;
+              case 'hh':
+                actVal = dVal.getHours()
+                break;
+              case 'mm':
+                actVal = dVal.getMinutes()
+                break;
+              case 'ss':
+                actVal = dVal.getSeconds()
+                break;
+            }
+            if (actVal === target) {
+              active = i
+              break
+            }
+          }
+          var topY = -active * this.liH
+          moveFunc(_this._translateY(item), topY, 400, function(y) {
+            _this._translateY(item, y)
+            _this._renderActive(item.ul.querySelectorAll('li'), y, item)
+          })
+        })
+        return
+      }
       val = Array.isArray(val) ? val : [val]
       if (this.type === 3) {
         this._getLoopItem(this.options.rootId, 0, val)
         this._renderItems()
       }
+
       val.forEach((element, index) => {
         var item = this.items[index]
         var listData = item.data
@@ -408,24 +606,24 @@
       this._dom.mask.addEventListener('transitionend', removeClass, false)
     },
     // 获取值
-    getValue: function() {
-      return this._getValue('value')
-    },
-    // 获取文本
-    getText: function() {
-      return this._getValue('text')
+    getValue: function(key) {
+      if (this.type === 4) return this._getFmtDate()
+      return this._getValue(key)
     },
     // 获取所有的值
     getAll: function() {
-      return this._getValue()
+      return this._getValue(true)
     },
     // 获取选中的值
     _getValue: function(key) {
       var res = []
       this.items.forEach((item, index) => {
         var itemVal = item.data[item.active]
-        if (key) {
-          itemVal = typeof itemVal == 'object' ? itemVal[key] : itemVal
+        if (key === undefined) {
+          itemVal = typeof itemVal == 'object' ? (itemVal['value'] ? itemVal['value'] : itemVal['text']) : itemVal
+        }
+        if (key && typeof key === 'string') {
+          itemVal = itemVal[key]
         }
         res.push(itemVal)
       })
@@ -433,6 +631,41 @@
         return res[0]
       }
       return res
+    },
+    // 获取时间值格式化输出
+    _getFmtDate() {
+      var fmt = this.options.dateTime + ''
+      var now = new Date
+      var nowTime = {
+        'yyyy': now.getFullYear(),
+        'MM': now.getMonth() + 1,
+        'dd': now.getDay()
+      }
+      this.items.forEach((item, index) => {
+        var itemVal = item.data[item.active].value
+        nowTime[item.time] = itemVal
+        switch (item.time) {
+          case 'MM':
+            if (nowTime['yyyy'] === this._minDate.getFullYear() && nowTime['MM'] < this._minDate.getMonth() + 1)
+              nowTime['MM'] = this._minDate.getMonth() + 1
+            if (nowTime['yyyy'] === this._maxDate.getFullYear() && nowTime['MM'] > this._maxDate.getMonth() + 1)
+              nowTime['MM'] = this._maxDate.getMonth() + 1
+            break
+          case 'dd':
+            if (nowTime['yyyy'] === this._minDate.getFullYear() && nowTime['MM'] === this._minDate.getMonth() + 1)
+              nowTime['dd'] = nowTime['dd'] < this._minDate.getDate() ? this._minDate.getDate() : nowTime['dd']
+            if (nowTime['yyyy'] === this._maxDate.getFullYear() && nowTime['MM'] === this._maxDate.getMonth() + 1)
+              nowTime['dd'] = nowTime['dd'] > this._maxDate.getDate() ? this._maxDate.getDate() : nowTime['dd']
+            var getDays = this._getMonthDays(nowTime['yyyy'], nowTime['MM'])
+            nowTime['dd'] = nowTime['dd'] > getDays ? getDays : nowTime['dd']
+            break
+        }
+        itemVal = nowTime[item.time] || itemVal
+        fmt = fmt.replace(new RegExp(item.time, 'g'), res => {
+          return itemVal < 10 ? ('0' + itemVal) : itemVal
+        })
+      })
+      return fmt
     },
     // 销毁实例
     destroy: function() {
