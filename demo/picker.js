@@ -251,16 +251,17 @@
         if (now.getFullYear() === maxDate.getFullYear()) {
           end = maxDate.getMonth() + 1
         }
-        for (; start <= end; start++) {
+        for (var i = 0, len = end - start; i <= len; i++) {
           item.push({
-            text: start + '月',
-            value: start
+            text: start + i + '月',
+            value: start + i
           })
         }
         if (newItem && newItem.time === 'MM' && newItem.data.length != item.length) {
           this._dom.body.removeChild(newItem.el)
           active = newItem.active < start - 1 ? start - 1 : newItem.active
           active = newItem.active > end - 1 ? end - 1 : newItem.active
+          active = active >= len ? len : active
           this.items[newItem.index] = {
             data: item,
             index: newItem.index,
@@ -296,16 +297,18 @@
           end = this._getMonthDays(now.getFullYear(), now.getMonth() + 1)
         }
 
-        for (; start <= end; start++) {
+
+        for (var i = 0, len = end - start; i <= len; i++) {
           item.push({
-            text: start + '日',
-            value: start
+            text: start + i + '日',
+            value: start + i
           })
         }
         if (newItem && newItem.time === 'dd' && newItem.data.length != item.length) {
           this._dom.body.removeChild(newItem.el)
           active = newItem.active < start - 1 ? start - 1 : newItem.active
           active = newItem.active > end - 1 ? end - 1 : newItem.active
+          active = active >= len ? len : active
           this.items[newItem.index] = {
             data: item,
             index: newItem.index,
@@ -320,6 +323,53 @@
           })
         }
       }
+      if(newItem) return
+      // 时 - hh
+      if (timeArr.includes('hh')) {
+        var item = []
+        for (var i = 0; i < 24; i++) {
+          item.push({
+            text: i + '时',
+            value: i
+          })
+        }
+        this.items.push({
+            data: item,
+            index: this.items.length,
+            time: 'hh',
+          })
+      }
+      // 分 - mm
+      if (timeArr.includes('mm')) {
+        var item = []
+        for (var i = 0; i < 60; i++) {
+          item.push({
+            text: i + '分',
+            value: i
+          })
+        }
+        this.items.push({
+            data: item,
+            index: this.items.length,
+            time: 'mm',
+          })
+      }
+      // 秒 - ss
+      if (timeArr.includes('ss')) {
+        var item = []
+        for (var i = 0; i < 60; i++) {
+          item.push({
+            text: i + '秒',
+            value: i
+          })
+        }
+        this.items.push({
+            data: item,
+            index: this.items.length,
+            time: 'ss',
+          })
+      }
+
     },
     // 根据时间判断当前月有多少天
     _getMonthDays: function(y, m) {
@@ -478,13 +528,8 @@
       if (this.type == 3) return this._getLoopItem(item.data[item.active].id, item.index + 1) && this._renderItems(item.index + 1)
       if (this.type === 4) {
         var dVal = new Date(this.getValue())
-        console.log(this.getValue())
         this._getTimeItem(dVal, item)
         this._renderItems(item.index + 1)
-        // var dVal = new Date(this.getValue())
-        // this.items = []
-        // this._getTimeItem(dVal)
-        // this.setValue(dVal)
       }
     },
     // 激活当前选中的class

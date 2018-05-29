@@ -28,7 +28,8 @@
   <div class="demo-btn" id="testUseB">基本用法二</div>
   <div class="demo-btn" id="testUseC">多级选择</div>
   <div class="demo-btn" id="testUseD">多级联动</div>
-  <div class="demo-btn" id="testUseE">时间选择</div>
+  <div class="demo-btn" id="testUseE">日期选择</div>
+  <div class="demo-btn" id="testUseF">时间选择</div>
 </body>
 <script src="picker.js"></script>
 <script>
@@ -124,7 +125,7 @@ document.querySelector('#testUseD').onclick = function(e) {
 }
 
 
-// 时间选择
+// 日期选择
 document.querySelector('#testUseE').onclick = function(e) {
   if (this.pick) return this.pick.show()
   this.pick = window.pick = new Picker({
@@ -133,7 +134,19 @@ document.querySelector('#testUseE').onclick = function(e) {
       console.log(val)
     },
     dateTime: 'yyyy-MM-dd',
-    value:'2018-04-20'
+  }).show()
+}
+
+
+// 时间选择
+document.querySelector('#testUseF').onclick = function(e) {
+  if (this.pick) return this.pick.show()
+  this.pick = window.pick = new Picker({
+    onOk: val => {
+      e.target.innerHTML = val
+      console.log(val)
+    },
+    dateTime: 'hh:mm:ss',
   }).show()
 }
 </script>
