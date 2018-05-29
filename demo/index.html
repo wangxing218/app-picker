@@ -53,6 +53,8 @@ document.querySelector('#testUseB').onclick = function(e) {
       { text: '请选择', value: '' },
       { text: '选择一', value: '1' },
       { text: '选择二', value: '2' },
+      { text: '选择三', value: '3' },
+      { text: '选择四', value: '4' },
     ],
     onOk: val => {
       e.target.innerHTML = this.pick.getValue('text')
@@ -128,7 +130,7 @@ document.querySelector('#testUseD').onclick = function(e) {
 // 日期选择
 document.querySelector('#testUseE').onclick = function(e) {
   if (this.pick) return this.pick.show()
-  this.pick = window.pick = new Picker({
+  this.pick = new Picker({
     onOk: val => {
       e.target.innerHTML = val
       console.log(val)
@@ -141,7 +143,7 @@ document.querySelector('#testUseE').onclick = function(e) {
 // 时间选择
 document.querySelector('#testUseF').onclick = function(e) {
   if (this.pick) return this.pick.show()
-  this.pick = window.pick = new Picker({
+  this.pick  = new Picker({
     onOk: val => {
       e.target.innerHTML = val
       console.log(val)

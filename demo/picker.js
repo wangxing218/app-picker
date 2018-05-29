@@ -214,17 +214,23 @@
       var timeArr = fmt.match(/(yyyy|MM|dd|hh|mm|ss)/g)
       var now = dVal || new Date
       // 设置时间范围
-      var minDate = this._minDate = new Date(this.options.minDate || '1970-01-01 00:00:00')
-      var maxDate = this._maxDate = new Date(this.options.maxDate || (now.getFullYear() + 30) + '-12-31 23:59:59')
+      this.options.minDate = this.options.minDate.replace(/\-/g, '/')
+      this.options.maxDate = this.options.maxDate.replace(/\-/g, '/')
+      var minDate = this._minDate = new Date(this.options.minDate || '1970/1/1 00:00:00')
+      var maxDate = this._maxDate = new Date(this.options.maxDate || (now.getFullYear() + 30) + '/12/31 23:59:59')
       // 年-yyyy
       if (timeArr.includes('yyyy') && !newItem) {
         var item = []
-        for (var start = minDate.getFullYear(), end = maxDate.getFullYear(); start <= end; start++) {
+        var start = minDate.getFullYear(),
+          end = maxDate.getFullYear()
+        len = end - start
+        for (var i = 0; i <= len; i++) {
           item.push({
-            text: start + '年',
-            value: start
+            text: start + i + '年',
+            value: start + i
           })
         }
+
         if (!newItem) {
           this.items.push({
             data: item,
@@ -323,7 +329,7 @@
           })
         }
       }
-      if(newItem) return
+      if (newItem) return
       // 时 - hh
       if (timeArr.includes('hh')) {
         var item = []
@@ -334,10 +340,10 @@
           })
         }
         this.items.push({
-            data: item,
-            index: this.items.length,
-            time: 'hh',
-          })
+          data: item,
+          index: this.items.length,
+          time: 'hh',
+        })
       }
       // 分 - mm
       if (timeArr.includes('mm')) {
@@ -349,10 +355,10 @@
           })
         }
         this.items.push({
-            data: item,
-            index: this.items.length,
-            time: 'mm',
-          })
+          data: item,
+          index: this.items.length,
+          time: 'mm',
+        })
       }
       // 秒 - ss
       if (timeArr.includes('ss')) {
@@ -364,10 +370,10 @@
           })
         }
         this.items.push({
-            data: item,
-            index: this.items.length,
-            time: 'ss',
-          })
+          data: item,
+          index: this.items.length,
+          time: 'ss',
+        })
       }
 
     },
